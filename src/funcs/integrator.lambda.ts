@@ -1,9 +1,9 @@
+import * as crypto from 'crypto';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DeleteCommand, DynamoDBDocumentClient, GetCommand, PutCommand } from '@aws-sdk/lib-dynamodb';
 import { WebClient } from '@slack/web-api';
 import { APIGatewayProxyHandlerV2, APIGatewayProxyResultV2 } from 'aws-lambda';
 import axios from 'axios';
-import * as crypto from 'crypto';
 
 const SECRET_MANAGER_GET_URL = 'http://localhost:2773/secretsmanager/get';
 const AWS_SESSION_TOKEN = process.env.AWS_SESSION_TOKEN || '';
@@ -82,7 +82,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event): Promise<APIGatew
 
   const payload = JSON.parse(bodyRaw);
   console.log(payload);
-  
+
   const eventType = event.headers['x-event-key']; // e.g., "pullrequest:created"
   let text: string;
   let prid: number;
@@ -95,7 +95,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event): Promise<APIGatew
 
     // Check if the PR is assigned to Devin
     const isAssignedToDevin = pr.reviewers?.some(
-      (reviewer: any) => reviewer.user.account_id === secrets.BitbucketDevinUserAccountId
+      (reviewer: any) => reviewer.user.account_id === secrets.BitbucketDevinUserAccountId,
     ) || pr.author?.account_id === secrets.BitbucketDevinUserAccountId;
 
     switch (eventType) {
