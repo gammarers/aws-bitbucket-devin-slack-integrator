@@ -3,7 +3,7 @@ import { DeleteCommand, DynamoDBDocumentClient, GetCommand, PutCommand } from '@
 import { WebClient } from '@slack/web-api';
 import { APIGatewayProxyHandlerV2, APIGatewayProxyResultV2 } from 'aws-lambda';
 import axios from 'axios';
-import crypto from 'crypto';
+import * as crypto from 'crypto';
 
 const SECRET_MANAGER_GET_URL = 'http://localhost:2773/secretsmanager/get';
 const AWS_SESSION_TOKEN = process.env.AWS_SESSION_TOKEN || '';
@@ -51,7 +51,7 @@ const deleteSlackThreadTimeStamp = (async(prid: number) => {
 // Bitbucket webhook signature の検証
 const validateBitbucketSignature = (payload: string, signature: string, secret: string): boolean => {
   const hash = crypto.createHmac('sha256', secret).update(payload).digest('hex');
-  return crypto.timingSafeEqual(hash, signature.replace('sha256=', ''));
+  return crypto.timingSafeEqual(new TextEncoder().encode(hash), new TextEncoder().encode(signature.replace('sha256=', '')));
 };
 
 export const handler: APIGatewayProxyHandlerV2 = async (event): Promise<APIGatewayProxyResultV2> => {
