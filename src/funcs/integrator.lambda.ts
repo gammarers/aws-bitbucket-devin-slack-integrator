@@ -1,4 +1,4 @@
-import * as crypto from 'crypto';
+import { createHmac, timingSafeEqual } from 'crypto';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DeleteCommand, DynamoDBDocumentClient, GetCommand, PutCommand } from '@aws-sdk/lib-dynamodb';
 import { WebClient } from '@slack/web-api';
@@ -50,8 +50,21 @@ const deleteSlackThreadTimeStamp = (async(prid: number) => {
 
 // Bitbucket webhook signature の検証
 const validateBitbucketSignature = (payload: string, signature: string, secret: string): boolean => {
-  const hash = crypto.createHmac('sha256', secret).update(payload).digest('hex');
-  return crypto.timingSafeEqual(new TextEncoder().encode(hash), new TextEncoder().encode(signature.replace('sha256=', '')));
+  const hashObject = createHmac('sha256', secret).update(payload);
+  const calculatedSignature = `sha256=${hashObject.digest('hex')}`;
+  const signaturesMatch = timingSafeEqual(Buffer.from(calculatedSignature), Buffer.from(signature));
+  if (!signaturesMatch) {
+    console.warn({
+      message: 'Signatures do not match',
+      calculatedSignature,
+      signature,
+    });
+    return false;
+  }
+  console.info({
+    message: 'Signatures match',
+  });
+  return true;
 };
 
 export const handler: APIGatewayProxyHandlerV2 = async (event): Promise<APIGatewayProxyResultV2> => {
@@ -77,28 +90,36 @@ export const handler: APIGatewayProxyHandlerV2 = async (event): Promise<APIGatew
   const signature = event.headers['x-hub-signature'] || '';
   const bodyRaw = event.body!;
   if (!validateBitbucketSignature(bodyRaw, signature, secrets.BitbucketSecretToken)) {
-    return { statusCode: 403, body: 'Invalid Bitbucket signature' };
+    return {
+      statusCode: 403,
+      body: JSON.stringify({
+        message: 'Invalid Bitbucket signature',
+      }),
+    };
   }
 
   const payload = JSON.parse(bodyRaw);
   console.log(payload);
 
-  const eventType = event.headers['x-event-key']; // e.g., "pullrequest:created"
+  const eventKey = event.headers['x-event-key']; // e.g., "pullrequest:created"
   let text: string;
   let prid: number;
 
   const slackClient = new WebClient(secrets.SlackSecretToken);
 
-  if (eventType?.startsWith('pullrequest:')) {
+  if (eventKey?.startsWith('pullrequest:')) {
     const pr = payload.pullrequest;
     prid = pr.id as number;
 
     // Check if the PR is assigned to Devin
     const isAssignedToDevin = pr.reviewers?.some(
-      (reviewer: any) => reviewer.user.account_id === secrets.BitbucketDevinUserAccountId,
+      (reviewer: any) => reviewer.account_id === secrets.BitbucketDevinUserAccountId,
     ) || pr.author?.account_id === secrets.BitbucketDevinUserAccountId;
+    console.log('pr.reviewers', pr.reviewers);
+    console.log('secrets.BitbucketDevinUserAccountId', secrets.BitbucketDevinUserAccountId);
+    console.log('isAssignedToDevin', isAssignedToDevin);
 
-    switch (eventType) {
+    switch (eventKey) {
       case 'pullrequest:created': {
         if (isAssignedToDevin) {
           text = `Hey <@${secrets.SlackDevinUserIdentifier}> \n🥳 Pull Request: <${pr.links.html.href}|${pr.title}> by ${pr.author.display_name}\nI have created a PR, please review it. Please review the description of the PR.`;
@@ -124,6 +145,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event): Promise<APIGatew
           if (!threadTs) {
             text = `Hey <@${secrets.SlackDevinUserIdentifier}> \n🥳 Pull Request: <${pr.links.html.href}|${pr.title}> by ${pr.author.display_name}\nI have updated a PR, please review it.`;
             const res = await slackClient.chat.postMessage({ channel: channelId, text });
+            console.log(res);
             const ts = res.ts;
             if (ts) {
               await putSlackThreadTimeStamp(prid, ts);
@@ -152,6 +174,51 @@ export const handler: APIGatewayProxyHandlerV2 = async (event): Promise<APIGatew
           }),
         };
       }
+      case 'pullrequest:comment_created': {
+        const comment = payload.comment;
+        // const pr = payload.pullrequest;
+        // prid = pr.id as number;
+        const author = comment.user.account_id as string;
+        console.log('author', author);
+        console.log('prid', prid);
+
+        if (author !== secrets.BitbucketDevinUserAccountId) {
+          const threadTs = await getSlackThreadTimeStamp(prid);
+          if (threadTs) {
+            text = `🗨️ Comment on PR <${pr.links.html.href}|${pr.title}> by ${comment.user.display_name}:\n>${comment.content.raw}`;
+            await slackClient.chat.postMessage({
+              channel: channelId,
+              thread_ts: threadTs,
+              text,
+            });
+            return {
+              headers: responseHeaders,
+              statusCode: 200,
+              body: JSON.stringify({
+                message: 'OK',
+                detail: 'Commented a PR',
+              }),
+            };
+          }
+          return {
+            headers: responseHeaders,
+            statusCode: 200,
+            body: JSON.stringify({
+              message: 'OK',
+              detail: 'This request went through (Not Found a PR timestamp).',
+            }),
+          };
+        }
+
+        return {
+          headers: responseHeaders,
+          statusCode: 200,
+          body: JSON.stringify({
+            message: 'OK',
+            detail: 'This request went through (Commented from Devin).',
+          }),
+        };
+      }
 
       default:
         return {
@@ -165,49 +232,11 @@ export const handler: APIGatewayProxyHandlerV2 = async (event): Promise<APIGatew
     }
   }
 
-  if (eventType === 'pullrequest:comment_created') {
-    const comment = payload.comment;
-    const pr = payload.pullrequest;
-    prid = pr.id as number;
-    const author = comment.user.account_id as string;
-
-    if (author !== secrets.BitbucketDevinUserAccountId) {
-      const threadTs = await getSlackThreadTimeStamp(prid);
-      if (threadTs) {
-        text = `🗨️ Comment on PR <${pr.links.html.href}|${pr.title}> by ${comment.user.display_name}:\n>${comment.content.raw}`;
-        await slackClient.chat.postMessage({
-          channel: channelId,
-          thread_ts: threadTs,
-          text,
-        });
-        return {
-          headers: responseHeaders,
-          statusCode: 200,
-          body: JSON.stringify({
-            message: 'OK',
-            detail: 'Commented a PR',
-          }),
-        };
-      }
-      return {
-        headers: responseHeaders,
-        statusCode: 200,
-        body: JSON.stringify({
-          message: 'OK',
-          detail: 'This request went through (Not Found a PR timestamp).',
-        }),
-      };
-    }
-
-    return {
-      headers: responseHeaders,
-      statusCode: 200,
-      body: JSON.stringify({
-        message: 'OK',
-        detail: 'This request went through (Commented from Devin).',
-      }),
-    };
-  }
-
-  return { statusCode: 400, body: 'Event ignored' };
+  return {
+    headers: responseHeaders,
+    statusCode: 400,
+    body: JSON.stringify({
+      message: 'Event ignored',
+    }),
+  };
 };
