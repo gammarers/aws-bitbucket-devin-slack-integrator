@@ -22,7 +22,7 @@ export class BitbucketDevinSlackIntegrator extends Construct {
     const region = Stack.of(scope).region;
     const partition = Stack.of(scope).partition;
 
-    // Create DynamoDB(GitLab MR ID & Slack message timestamp)
+    // Create DynamoDB(Bitbucket PR ID & Slack message timestamp)
     const table = new dynamodb.Table(this, 'BitbucketMargeRequestTimestampTable', {
       partitionKey: { name: 'prid', type: dynamodb.AttributeType.NUMBER },
       removalPolicy: RemovalPolicy.DESTROY,
@@ -31,7 +31,7 @@ export class BitbucketDevinSlackIntegrator extends Construct {
 
     // Bitbucket Webhook Lambda
     const integratorFunction = new IntegratorFunction(this, 'IntegratorFunction', {
-      description: 'Send Slack message function',
+      description: 'Send Slack message for Bitbucket webhook',
       architecture: lambda.Architecture.ARM_64,
       role: new iam.Role(this, 'IntegratorFunctionExecutionRole', {
         // roleName: names.functionRoleName,
@@ -94,20 +94,20 @@ export class BitbucketDevinSlackIntegrator extends Construct {
 
     // HTTP API
     const api = new HttpApi(this, 'SlackBitbucketIntegrationAPI', {
-      apiName: 'Slack GitLab Integration API',
+      apiName: 'Slack Bitbucket Integration API',
     });
 
     // Bitbucket Webhook 用ルート（path-based channel）
     api.addRoutes({
-      path: '/gitlab/merge/request/{channel}',
+      path: '/bitbucket/pull/request/{channel}',
       methods: [HttpMethod.POST],
-      integration: new integrations.HttpLambdaIntegration('GitlabWebhookIntegration', integratorFunction),
+      integration: new integrations.HttpLambdaIntegration('BitbucketWebhookIntegration', integratorFunction),
     });
 
     api.addRoutes({
       path: '/{channel}',
       methods: [HttpMethod.POST],
-      integration: new integrations.HttpLambdaIntegration('GitlabWebhookIntegration', integratorFunction),
+      integration: new integrations.HttpLambdaIntegration('BitbucketWebhookIntegration', integratorFunction),
     });
   }
 }
