@@ -9,14 +9,14 @@
 ```typescript
 import { BitbucketDevinSlackIntegrator } from '@gammarers/aws-bitbucket-devin-slack-integrator'
 
-new BitbucketDevinSlackIntegrator(scope: Construct, id: string, _props: BitbucketDevinSlackIntegratorProps)
+new BitbucketDevinSlackIntegrator(scope: Construct, id: string, props: BitbucketDevinSlackIntegratorProps)
 ```
 
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
 | <code><a href="#@gammarers/aws-bitbucket-devin-slack-integrator.BitbucketDevinSlackIntegrator.Initializer.parameter.scope">scope</a></code> | <code>constructs.Construct</code> | *No description.* |
 | <code><a href="#@gammarers/aws-bitbucket-devin-slack-integrator.BitbucketDevinSlackIntegrator.Initializer.parameter.id">id</a></code> | <code>string</code> | *No description.* |
-| <code><a href="#@gammarers/aws-bitbucket-devin-slack-integrator.BitbucketDevinSlackIntegrator.Initializer.parameter._props">_props</a></code> | <code><a href="#@gammarers/aws-bitbucket-devin-slack-integrator.BitbucketDevinSlackIntegratorProps">BitbucketDevinSlackIntegratorProps</a></code> | *No description.* |
+| <code><a href="#@gammarers/aws-bitbucket-devin-slack-integrator.BitbucketDevinSlackIntegrator.Initializer.parameter.props">props</a></code> | <code><a href="#@gammarers/aws-bitbucket-devin-slack-integrator.BitbucketDevinSlackIntegratorProps">BitbucketDevinSlackIntegratorProps</a></code> | *No description.* |
 
 ---
 
@@ -32,7 +32,7 @@ new BitbucketDevinSlackIntegrator(scope: Construct, id: string, _props: Bitbucke
 
 ---
 
-##### `_props`<sup>Required</sup> <a name="_props" id="@gammarers/aws-bitbucket-devin-slack-integrator.BitbucketDevinSlackIntegrator.Initializer.parameter._props"></a>
+##### `props`<sup>Required</sup> <a name="props" id="@gammarers/aws-bitbucket-devin-slack-integrator.BitbucketDevinSlackIntegrator.Initializer.parameter.props"></a>
 
 - *Type:* <a href="#@gammarers/aws-bitbucket-devin-slack-integrator.BitbucketDevinSlackIntegratorProps">BitbucketDevinSlackIntegratorProps</a>
 
