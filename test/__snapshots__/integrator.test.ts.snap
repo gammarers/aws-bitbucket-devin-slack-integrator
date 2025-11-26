@@ -109,9 +109,9 @@ exports[`Integrator Testing Should match snapshot 1`] = `
           "S3Bucket": {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "14c185fa081f999d62a02ca2cbf91a2fbf89e94ca103d034cc5cbdcbc78e448c.zip",
+          "S3Key": "9bfebdbdc57e567c2e4dea271dbb00e5d29359d61b7ace9358f87df93092783f.zip",
         },
-        "Description": "Send Slack message function",
+        "Description": "Send Slack message for Bitbucket webhook",
         "Environment": {
           "Variables": {
             "AWS_NODEJS_CONNECTION_REUSE_ENABLED": "1",
@@ -258,7 +258,7 @@ exports[`Integrator Testing Should match snapshot 1`] = `
     },
     "BitbucketDevinSlackIntegratorSlackBitbucketIntegrationAPI7CFFB5EB": {
       "Properties": {
-        "Name": "Slack GitLab Integration API",
+        "Name": "Slack Bitbucket Integration API",
         "ProtocolType": "HTTP",
       },
       "Type": "AWS::ApiGatewayV2::Api",
@@ -273,20 +273,20 @@ exports[`Integrator Testing Should match snapshot 1`] = `
       },
       "Type": "AWS::ApiGatewayV2::Stage",
     },
-    "BitbucketDevinSlackIntegratorSlackBitbucketIntegrationAPIPOSTchannel5D4CA6B0": {
+    "BitbucketDevinSlackIntegratorSlackBitbucketIntegrationAPIPOSTbitbucketpullrequestchannelBE8A3314": {
       "Properties": {
         "ApiId": {
           "Ref": "BitbucketDevinSlackIntegratorSlackBitbucketIntegrationAPI7CFFB5EB",
         },
         "AuthorizationType": "NONE",
-        "RouteKey": "POST /{channel}",
+        "RouteKey": "POST /bitbucket/pull/request/{channel}",
         "Target": {
           "Fn::Join": [
             "",
             [
               "integrations/",
               {
-                "Ref": "BitbucketDevinSlackIntegratorSlackBitbucketIntegrationAPIPOSTchannelGitlabWebhookIntegrationE1D610A2",
+                "Ref": "BitbucketDevinSlackIntegratorSlackBitbucketIntegrationAPIPOSTbitbucketpullrequestchannelBitbucketWebhookIntegrationF61A42C9",
               },
             ],
           ],
@@ -294,7 +294,7 @@ exports[`Integrator Testing Should match snapshot 1`] = `
       },
       "Type": "AWS::ApiGatewayV2::Route",
     },
-    "BitbucketDevinSlackIntegratorSlackBitbucketIntegrationAPIPOSTchannelGitlabWebhookIntegrationE1D610A2": {
+    "BitbucketDevinSlackIntegratorSlackBitbucketIntegrationAPIPOSTbitbucketpullrequestchannelBitbucketWebhookIntegrationF61A42C9": {
       "Properties": {
         "ApiId": {
           "Ref": "BitbucketDevinSlackIntegratorSlackBitbucketIntegrationAPI7CFFB5EB",
@@ -310,7 +310,81 @@ exports[`Integrator Testing Should match snapshot 1`] = `
       },
       "Type": "AWS::ApiGatewayV2::Integration",
     },
-    "BitbucketDevinSlackIntegratorSlackBitbucketIntegrationAPIPOSTchannelGitlabWebhookIntegrationPermissionC070DBCA": {
+    "BitbucketDevinSlackIntegratorSlackBitbucketIntegrationAPIPOSTbitbucketpullrequestchannelBitbucketWebhookIntegrationPermission3D09A91E": {
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "BitbucketDevinSlackIntegratorIntegratorFunction7E58E405",
+            "Arn",
+          ],
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region",
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId",
+              },
+              ":",
+              {
+                "Ref": "BitbucketDevinSlackIntegratorSlackBitbucketIntegrationAPI7CFFB5EB",
+              },
+              "/*/*/bitbucket/pull/request/{channel}",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "BitbucketDevinSlackIntegratorSlackBitbucketIntegrationAPIPOSTchannel5D4CA6B0": {
+      "Properties": {
+        "ApiId": {
+          "Ref": "BitbucketDevinSlackIntegratorSlackBitbucketIntegrationAPI7CFFB5EB",
+        },
+        "AuthorizationType": "NONE",
+        "RouteKey": "POST /{channel}",
+        "Target": {
+          "Fn::Join": [
+            "",
+            [
+              "integrations/",
+              {
+                "Ref": "BitbucketDevinSlackIntegratorSlackBitbucketIntegrationAPIPOSTchannelBitbucketWebhookIntegration1EFD86F5",
+              },
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::ApiGatewayV2::Route",
+    },
+    "BitbucketDevinSlackIntegratorSlackBitbucketIntegrationAPIPOSTchannelBitbucketWebhookIntegration1EFD86F5": {
+      "Properties": {
+        "ApiId": {
+          "Ref": "BitbucketDevinSlackIntegratorSlackBitbucketIntegrationAPI7CFFB5EB",
+        },
+        "IntegrationType": "AWS_PROXY",
+        "IntegrationUri": {
+          "Fn::GetAtt": [
+            "BitbucketDevinSlackIntegratorIntegratorFunction7E58E405",
+            "Arn",
+          ],
+        },
+        "PayloadFormatVersion": "2.0",
+      },
+      "Type": "AWS::ApiGatewayV2::Integration",
+    },
+    "BitbucketDevinSlackIntegratorSlackBitbucketIntegrationAPIPOSTchannelBitbucketWebhookIntegrationPermission802D488E": {
       "Properties": {
         "Action": "lambda:InvokeFunction",
         "FunctionName": {
@@ -341,80 +415,6 @@ exports[`Integrator Testing Should match snapshot 1`] = `
                 "Ref": "BitbucketDevinSlackIntegratorSlackBitbucketIntegrationAPI7CFFB5EB",
               },
               "/*/*/{channel}",
-            ],
-          ],
-        },
-      },
-      "Type": "AWS::Lambda::Permission",
-    },
-    "BitbucketDevinSlackIntegratorSlackBitbucketIntegrationAPIPOSTgitlabmergerequestchannel5329C883": {
-      "Properties": {
-        "ApiId": {
-          "Ref": "BitbucketDevinSlackIntegratorSlackBitbucketIntegrationAPI7CFFB5EB",
-        },
-        "AuthorizationType": "NONE",
-        "RouteKey": "POST /gitlab/merge/request/{channel}",
-        "Target": {
-          "Fn::Join": [
-            "",
-            [
-              "integrations/",
-              {
-                "Ref": "BitbucketDevinSlackIntegratorSlackBitbucketIntegrationAPIPOSTgitlabmergerequestchannelGitlabWebhookIntegration31890E35",
-              },
-            ],
-          ],
-        },
-      },
-      "Type": "AWS::ApiGatewayV2::Route",
-    },
-    "BitbucketDevinSlackIntegratorSlackBitbucketIntegrationAPIPOSTgitlabmergerequestchannelGitlabWebhookIntegration31890E35": {
-      "Properties": {
-        "ApiId": {
-          "Ref": "BitbucketDevinSlackIntegratorSlackBitbucketIntegrationAPI7CFFB5EB",
-        },
-        "IntegrationType": "AWS_PROXY",
-        "IntegrationUri": {
-          "Fn::GetAtt": [
-            "BitbucketDevinSlackIntegratorIntegratorFunction7E58E405",
-            "Arn",
-          ],
-        },
-        "PayloadFormatVersion": "2.0",
-      },
-      "Type": "AWS::ApiGatewayV2::Integration",
-    },
-    "BitbucketDevinSlackIntegratorSlackBitbucketIntegrationAPIPOSTgitlabmergerequestchannelGitlabWebhookIntegrationPermission743FD6E2": {
-      "Properties": {
-        "Action": "lambda:InvokeFunction",
-        "FunctionName": {
-          "Fn::GetAtt": [
-            "BitbucketDevinSlackIntegratorIntegratorFunction7E58E405",
-            "Arn",
-          ],
-        },
-        "Principal": "apigateway.amazonaws.com",
-        "SourceArn": {
-          "Fn::Join": [
-            "",
-            [
-              "arn:",
-              {
-                "Ref": "AWS::Partition",
-              },
-              ":execute-api:",
-              {
-                "Ref": "AWS::Region",
-              },
-              ":",
-              {
-                "Ref": "AWS::AccountId",
-              },
-              ":",
-              {
-                "Ref": "BitbucketDevinSlackIntegratorSlackBitbucketIntegrationAPI7CFFB5EB",
-              },
-              "/*/*/gitlab/merge/request/{channel}",
             ],
           ],
         },
