@@ -1011,9 +1011,9 @@
     levn "^0.4.1"
 
 "@gammarers/jest-aws-cdk-asset-filename-renamer@^0.5.50":
-  version "0.5.79"
-  resolved "https://registry.yarnpkg.com/@gammarers/jest-aws-cdk-asset-filename-renamer/-/jest-aws-cdk-asset-filename-renamer-0.5.79.tgz#d5c15f7fa9e94af63d96641ea69ba94931dc96d9"
-  integrity sha512-zOnJBzx87FmTYpVvU6JLF3wpNu2e8A1rBQEH5bvupb5roWniQt1t4qRLbooMl+u/l9QDdjKufQg6kgsL4TV8EA==
+  version "0.5.80"
+  resolved "https://registry.yarnpkg.com/@gammarers/jest-aws-cdk-asset-filename-renamer/-/jest-aws-cdk-asset-filename-renamer-0.5.80.tgz#46f5e898399c2c4eab452de3a03cd157456475f3"
+  integrity sha512-2QXDFJTDRbY5BysBQ5ZoCMkr+lSDI6geFPDG7ZhP0YHx5u10vxQxDlO4mLyKzZupmYWya6ziH6ekcBF+dX/RFg==
 
 "@humanfs/core@^0.19.1":
   version "0.19.1"
@@ -1443,9 +1443,9 @@
   integrity sha512-zt6OdqaDoOnJ1ZYsCYGt9YmWzDXl4vQdKTyJev62gFhRGKdx7mcT54V9KIjg+d2wi9EXsPvAPKe7i7WjfVWB8g==
 
 "@sinclair/typebox@^0.34.0":
-  version "0.34.45"
-  resolved "https://registry.yarnpkg.com/@sinclair/typebox/-/typebox-0.34.45.tgz#6c0426b584c74d57625ed6b180ac59a62f139f7c"
-  integrity sha512-qJcFVfCa5jxBFSuv7S5WYbA8XdeCPmhnaVVfX/2Y6L8WYg8sk3XY2+6W0zH+3mq1Cz+YC7Ki66HfqX6IHAwnkg==
+  version "0.34.46"
+  resolved "https://registry.yarnpkg.com/@sinclair/typebox/-/typebox-0.34.46.tgz#33ea674ef3fbc46733c6d124ae94a6826abaf8cf"
+  integrity sha512-kiW7CtS/NkdvTUjkjUJo7d5JsFfbJ14YjdhDk9KoEgK6nFjKNXZPrX0jfLA8ZlET4cFLHxOZ/0vFKOP+bOxIOQ==
 
 "@sinonjs/commons@^3.0.1":
   version "3.0.1"
