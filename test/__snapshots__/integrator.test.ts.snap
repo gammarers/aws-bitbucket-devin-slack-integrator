@@ -231,7 +231,7 @@ exports[`Integrator Testing Should match snapshot 1`] = `
           "S3Bucket": {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "9cc237582a6298105e149dbc186fc6974dff763e0a51b9704c8d9a8f86b5b828.zip",
+          "S3Key": "39f774fad133618142db21fa56affc6a6a548717d337286b9458c0a17844fdc0.zip",
         },
         "Description": "Send Slack message for Bitbucket webhook",
         "Environment": {
